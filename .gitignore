@@ -1,0 +1,60 @@
+# Arquivos compilados Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Diretórios de ambiente virtual
+venv/
+env/
+.venv/
+.env/
+
+# Arquivos de configuração de IDEs/editores
+.vscode/
+.idea/
+*.sublime-workspace
+
+# Logs e arquivos temporários
+*.log
+*.tmp
+*.swp
+*.swo
+
+# Banco de dados local e arquivos do SQLite
+*.sqlite3
+*.db
+*.sqlite
+
+# Arquivos de pacotes e dependências
+*.egg-info/
+*.egg
+*.whl
+dist/
+build/
+pip-wheel-metadata/
+
+# Arquivos de cache do pip
+__pycache__/
+*.pyc
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Arquivos de teste
+.coverage
+.tox/
+.nox/
+.pytest_cache/
+
+# Arquivos de configuração e credenciais sensíveis
+.env
+.env.*
+*.ini
+*.cfg
+*.json
+
+# Configurações específicas do Jupyter Notebook
+.ipynb_checkpoints/
+
+# Arquivos do sistema operacional
+.DS_Store
+Thumbs.db
