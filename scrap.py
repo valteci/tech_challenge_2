@@ -7,7 +7,27 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 import pandas as pd
+from io import StringIO
 import time
+
+
+def to_dataframe(tabela)-> pd.DataFrame:
+    html = tabela.get_attribute('outerHTML')
+    df_list = pd.read_html(
+        StringIO(html),
+        decimal=',',
+    )
+
+    df = df_list[0].iloc[:-2]
+
+    df.loc[:, 'Part. (%)'] /= 1000
+    df.loc[:, 'Qtde. Teórica'] = df['Qtde. Teórica'].str.replace('.', '', regex=False).astype('int64')
+
+    if df_list:
+        return df
+    else:
+        return pd.DataFrame()
+
 
 options = Options()
 options.add_argument('--headless')
@@ -22,6 +42,13 @@ url = "https://sistemaswebb3-listados.b3.com.br/indexPage/day/IBOV?language=pt-b
 driver.get(url)
 
 try:
+    df_final = pd.DataFrame({
+    'Código': pd.Series(dtype='str'),              # Tipo string
+    'Ação': pd.Series(dtype='str'),                # Tipo string
+    'Tipo': pd.Series(dtype='category'),           # Tipo categoria (para eficiência)
+    'Qtde. Teórica': pd.Series(dtype='int64'),     # Tipo inteiro
+    'Part. (%)': pd.Series(dtype='float64')        # Tipo decimal
+    })
     for i in range(1, 6):
         if i > 1:
             try:
@@ -40,9 +67,15 @@ try:
         )
 
         print(f"\n=== HTML da tabela - Página {i} ===\n")
-        print(tabela.get_attribute('outerHTML'))
+        df = to_dataframe(tabela)
+        df_final = pd.concat([df_final, df], ignore_index=True)
+    
+    df_final['Qtde. Teórica'] = df_final['Qtde. Teórica'].astype(int)
+    df_final.to_parquet('dados_b3.parquet', engine='fastparquet', index=False)
 
-except:
+
+except Exception as e:
+    print(e)
     print("Erro ao carregar a tabela.")
     driver.quit()
     exit(1)
