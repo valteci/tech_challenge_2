@@ -96,9 +96,7 @@ def _remove_file(file_path: str) -> None:
             os.remove(file_path)
 
 
-def main():
+def start():
     filename = _scraping()
     _send_to_s3(filename, BUCKET_NAME)
     _remove_file(filename)
-
-main()
