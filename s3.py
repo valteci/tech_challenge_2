@@ -18,7 +18,7 @@ def upload(
             object_name = f'{prefix}/{object_name}'
 
         s3_client.upload_file(your_file_path, bucket_path, object_name)       
-
+        print('\n\033[32mDados enviados para o S3 com sucesso!\033[0m')
     
     except Exception as e:
         print(e)

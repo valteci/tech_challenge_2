@@ -14,7 +14,7 @@ from datetime import datetime
 import os
 
 
-BUCKET_NAME = 'dados-b3'
+BUCKET_NAME = 'b3-dados-raw'
 
 def _to_dataframe(tabela)-> pd.DataFrame:
     html = tabela.get_attribute('outerHTML')
@@ -71,7 +71,7 @@ def _scraping() -> str:
                 EC.presence_of_element_located((By.TAG_NAME, 'table'))
             )
 
-            print(f"\nPágina {i} foi precessada ===\n")
+            print(f"\nPágina {i} foi precessada com sucesso!\n")
             df = _to_dataframe(tabela)
             df_final = pd.concat([df_final, df], ignore_index=True)
         
@@ -89,7 +89,7 @@ def _scraping() -> str:
         exit(1)
 
 def _send_to_s3(filename: str, bucket_name: str) -> None:
-    s3.upload(filename, 'dados-b3')
+    s3.upload(filename, bucket_name)
 
 def _remove_file(file_path: str) -> None:
     if os.path.exists(file_path):
