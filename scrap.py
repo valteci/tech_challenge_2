@@ -14,7 +14,7 @@ from datetime import datetime
 import os
 
 
-BUCKET_NAME = 'b3-dados-raw'
+BUCKET_NAME = 'valteci-b3-raw'
 
 def _to_dataframe(tabela)-> pd.DataFrame:
     html = tabela.get_attribute('outerHTML')
@@ -77,6 +77,8 @@ def _scraping() -> str:
         
         df_final['Qtde. Teórica'] = df_final['Qtde. Teórica'].astype(int)
         date = datetime.strftime(datetime.now(), '%d-%m-%Y')
+        df_final['Data'] = date
+        df_final['Data'] = df_final['Data'].astype('str')
         filename = f'b3-{date}.parquet'
         df_final.to_parquet(filename, engine='fastparquet', index=False)
         
