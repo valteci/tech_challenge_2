@@ -17,6 +17,11 @@ import os
 BUCKET_NAME = 'valteci-b3-raw'
 URL = "https://sistemaswebb3-listados.b3.com.br/indexPage/day/IBOV?language=pt-br"
 
+def _data_de_hoje() -> str:
+    """Retorna a data de hoje no formato dd-mm-YYYY"""
+    return datetime.strftime(datetime.now(), '%d-%m-%Y')
+
+
 def _to_dataframe_codigo(tabela)-> pd.DataFrame:
     html = tabela.get_attribute('outerHTML')
     df_list = pd.read_html(
@@ -57,6 +62,7 @@ def _to_dataframe_setor(tabela)-> pd.DataFrame:
     df_final.loc[:, 'Setor - Part. (%)Acum.'] /= 1000
 
     return df_final
+
 
 def _scraping_por_codigo() -> pd.DataFrame:
     print('\n\n===========Iniciando scraping por código===========\n\n')
@@ -100,11 +106,8 @@ def _scraping_por_codigo() -> pd.DataFrame:
             df_final = pd.concat([df_final, df], ignore_index=True)
         
         df_final['Qtde. Teórica'] = df_final['Qtde. Teórica'].astype(int)
-        date = datetime.strftime(datetime.now(), '%d-%m-%Y')
-        df_final['Data'] = date
+        df_final['Data'] = _data_de_hoje()
         df_final['Data'] = df_final['Data'].astype('str')
-        #filename = f'b3-{date}.parquet'
-        #df_final.to_parquet(filename, engine='fastparquet', index=False)
         
         return df_final
 
@@ -187,13 +190,24 @@ def _remove_file(file_path: str) -> None:
             os.remove(file_path)
 
 
+def _gerar_parquet(df: pd.DataFrame, filename: str) -> None:
+    try:
+        df.to_parquet(
+            filename,
+            engine='fastparquet',
+            index=False
+        )
+
+    except Exception as e:
+        print('Erro ao gerar parquet:', e)
+ 
 
 def start():
     df_codigo = _scraping_por_codigo()
     df_setor = _scraping_por_setor()
     df_final = pd.merge(df_codigo, df_setor, on='Código', how='inner')
-    print(df_final.columns)
-    print(df_final)
-    
-    #_send_to_s3(filename, BUCKET_NAME)
-    #_remove_file(filename)
+    filename = f'{_data_de_hoje()}.parquet'
+    _gerar_parquet(df_final, filename)
+    _send_to_s3(filename, BUCKET_NAME)
+    _remove_file(filename)
+
